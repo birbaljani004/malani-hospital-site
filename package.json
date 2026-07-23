@@ -1,0 +1,13 @@
+{
+  "name": "malani-hospital-website",
+  "version": "1.0.0",
+  "description": "Malani Hospital website - static site + Netlify Functions admin panel",
+  "scripts": {
+    "dev": "netlify dev"
+  },
+  "dependencies": {
+    "@netlify/blobs": "^10.7.9",
+    "bcryptjs": "^3.0.3",
+    "jsonwebtoken": "^9.0.3"
+  }
+}

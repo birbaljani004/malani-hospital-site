@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>गैलरी — मालाणी हॉस्पिटल</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Inter:wght@300;400;500;600&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="assets/style.css"/>
+<style>
+  body { font-family: 'Noto Sans Devanagari', 'Inter', sans-serif; }
+  .logo-text .name, .hero h1, .section-title, .about-visual + div h2, .page-hero h1, .rating-big, .doc-body h3, .footer-brand .fb-name, .contact-card h3, .appt-info h3, .appt-form-box h4, .ot-feature-text h3, .building-banner-overlay h2 { font-family: 'Noto Sans Devanagari', 'Cormorant Garamond', serif; }
+</style>
+
+</head>
+<body>
+
+<div class="topbar">
+  <div>
+    <span data-content="global.address_line">📍 गुड़ामालानी, बाड़मेर — 344031, राजस्थान</span>
+    <span data-content="global.open_hours">🕐 24×7 खुला</span>
+  </div>
+  <div class="topbar-right">
+    <a href="tel:+91XXXXXXXXXX" data-content-href="global.emergency_phone" data-content="global.emergency_phone_display">📞 आपातकालीन: +91 XXXXX XXXXX</a>
+  </div>
+</div>
+<div class="notice-bar">
+  <div class="notice-inner" id="noticeInner"><span>सोनोग्राफी, एक्स-रे व पैथोलॉजी रिपोर्ट अब उसी दिन उपलब्ध</span><span>24×7 आपातकालीन एवं ट्रॉमा सेवा उपलब्ध</span></div>
+</div>
+<nav>
+  <a class="nav-logo" href="index.html">
+    <div class="logo-emblem">M</div>
+    <div class="logo-text">
+      <span class="name" data-content="global.brand_name">मालाणी हॉस्पिटल</span>
+      <span class="tagline" data-content="global.brand_tagline">गुड़ामालानी · बाड़मेर</span>
+    </div>
+  </a>
+  <button class="nav-toggle" onclick="toggleMenu()" aria-label="मेन्यू खोलें">☰</button>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="index.html">होम</a></li>
+    <li><a href="about.html">हमारे बारे में</a></li>
+    <li><a href="services.html">सेवाएं</a></li>
+    <li><a href="doctors.html">डॉक्टर्स</a></li>
+    <li><a href="facilities.html">सुविधाएं</a></li>
+    <li><a href="gallery.html" class="active">गैलरी</a></li>
+    <li><a href="reviews.html">समीक्षाएं</a></li>
+    <li><a href="contact.html">संपर्क करें</a></li>
+    <li><a href="appointment.html" class="nav-cta">अपॉइंटमेंट बुक करें</a></li>
+  </ul>
+</nav>
+<div class="util-bar">
+  <div class="crumbs">आप यहाँ हैं: <a href="index.html" style="color:var(--muted);text-decoration:none;">होम</a> / <strong>गैलरी</strong></div>
+  <div class="util-actions">
+    <button type="button" class="util-btn" onclick="goBackOrHome()">← पीछे जाएं</button>
+    <a href="index.html" class="util-btn">🏠 होम पेज</a>
+  </div>
+</div>
+<div id="pageContentBlock" data-content-page="gallery">
+<div class="page-hero">
+  <div class="section-label">गैलरी</div>
+  <h1>हमारी गैलरी</h1>
+  <p>हमारे हॉस्पिटल भवन, ऑपरेशन थियेटर एवं परिसर की झलक।</p>
+</div>
+
+<section class="gallery-wrap">
+  <div class="gallery-grid">
+    <div class="gallery-item wide">
+      <img src="assets/hospital-real.jpg" alt="मालाणी हॉस्पिटल का मुख्य भवन — सामने से दृश्य"/>
+      <div class="gallery-cap">मालाणी हॉस्पिटल एंड रिसर्च सेंटर — मुख्य भवन</div>
+    </div>
+    <div class="gallery-item">
+      <img src="assets/hospital-render.jpg" alt="हॉस्पिटल भवन का डिज़ाइन दृश्य"/>
+      <div class="gallery-cap">भवन का आर्किटेक्चरल डिज़ाइन</div>
+    </div>
+    <div class="gallery-item">
+      <img src="assets/ot-surgery.jpg" alt="ऑपरेशन थियेटर में सर्जरी टीम"/>
+      <div class="gallery-cap">हमारी सर्जिकल टीम — ऑपरेशन थियेटर</div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-band">
+  <h2>हमारे परिसर को स्वयं देखना चाहते हैं?</h2>
+  <p>आज ही विज़िट करें या अपॉइंटमेंट बुक करें।</p>
+  <div class="hero-actions">
+    <a href="appointment.html" class="btn-primary">अपॉइंटमेंट बुक करें</a>
+    <a href="contact.html" class="btn-ghost">पता एवं दिशा-निर्देश</a>
+  </div>
+</section>
+</div>
+<footer>
+  <div class="footer-main">
+    <div class="footer-brand">
+      <div class="fb-logo">
+        <div class="logo-emblem">M</div>
+        <span class="fb-name" data-content="global.brand_name">मालाणी हॉस्पिटल</span>
+      </div>
+      <p data-content="global.footer_about">गुड़ामालानी, बाड़मेर एवं आसपास के क्षेत्र के परिवारों को भरोसेमंद, सहानुभूतिपूर्ण चिकित्सा सेवा प्रदान करना — वर्ष के 365 दिन, 24 घंटे उपलब्ध।</p>
+    </div>
+    <div class="footer-col">
+      <h4>हॉस्पिटल</h4>
+      <ul>
+        <li><a href="about.html">हमारे बारे में</a></li>
+        <li><a href="doctors.html">हमारे डॉक्टर्स</a></li>
+        <li><a href="facilities.html">सुविधाएं</a></li>
+        <li><a href="reviews.html">मरीज़ों की राय</a></li>
+        <li><a href="gallery.html">गैलरी</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>सेवाएं</h4>
+      <ul>
+        <li><a href="services.html">आपातकालीन सेवा</a></li>
+        <li><a href="services.html">प्रसूति एवं स्त्री रोग</a></li>
+        <li><a href="services.html">पैथोलॉजी लैब</a></li>
+        <li><a href="services.html">रेडियोलॉजी</a></li>
+        <li><a href="services.html">सर्जरी सेवाएं</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>संपर्क</h4>
+      <ul>
+        <li><a href="contact.html">गुड़ामालानी, बाड़मेर</a></li>
+        <li><a href="contact.html">राजस्थान — 344031</a></li>
+        <li><a href="tel:+91XXXXXXXXXX" data-content-href="global.emergency_phone" data-content="global.emergency_phone_plain">+91 XXXXX XXXXX</a></li>
+        <li><a href="appointment.html">अपॉइंटमेंट बुक करें</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span data-content="global.footer_bottom">© 2026 मालाणी हॉस्पिटल एंड रिसर्च सेंटर, गुड़ामालानी, बाड़मेर. सर्वाधिकार सुरक्षित।</span>
+    <span class="rating-pill" data-content="global.footer_rating">⭐ 4.7 जस्टडायल रेटिंग</span>
+  </div>
+</footer>
+
+<script src="assets/site-data.js"></script>
+<script src="assets/main.js"></script>
+</body>
+</html>

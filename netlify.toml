@@ -1,0 +1,23 @@
+[build]
+  functions = "netlify/functions"
+  publish = "public"
+  command = "npm install"
+
+[functions]
+  node_bundler = "esbuild"
+  included_files = ["serverdata/default-db.json"]
+
+# Every page (index.html, doctors.html, admin/*.html, etc.) is a real static
+# file inside /public and Netlify's CDN serves it directly — no redirect or
+# function is involved for pages themselves. Only these two API paths need
+# a rewrite to the Functions:
+
+[[redirects]]
+  from = "/media/*"
+  to = "/.netlify/functions/media/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
