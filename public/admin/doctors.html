@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>डॉक्टर्स — मालाणी हॉस्पिटल एडमिन</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="admin.css"/>
+</head>
+<body>
+<div class="admin-shell">
+  <div class="admin-sidebar" id="sidebar"></div>
+  <div class="admin-main">
+    <div class="admin-topline"><h2>👨‍⚕️ डॉक्टर्स प्रबंधन</h2></div>
+    <div id="flash" class="flash"></div>
+
+    <div class="card">
+      <h3 style="margin-top:0;">मौजूदा डॉक्टर्स</h3>
+      <div id="doctorList"><p class="muted">लोड हो रहा है...</p></div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0;">➕ नया डॉक्टर जोड़ें</h3>
+      <form id="addForm">
+        <div class="grid2">
+          <div>
+            <label>पूरा नाम *</label>
+            <input type="text" name="name" required/>
+            <label>विशेषज्ञता (Specialization) *</label>
+            <input type="text" name="specialization" required/>
+            <label>योग्यता (Qualification)</label>
+            <input type="text" name="qualification"/>
+            <label>उपलब्धता (Availability)</label>
+            <input type="text" name="availability" placeholder="जैसे: नियमित सेवाएं / प्रत्येक शनिवार"/>
+          </div>
+          <div>
+            <label>विस्तृत जानकारी</label>
+            <textarea name="details"></textarea>
+            <label>फोटो अपलोड करें * (कोई भी साइज़ चलेगा)</label>
+            <input type="file" name="photo" accept="image/*" required/>
+          </div>
+        </div>
+        <button type="submit" class="btn gold" style="margin-top:14px;">डॉक्टर जोड़ें</button>
+      </form>
+    </div>
+  </div>
+</div>
+<script src="admin.js"></script>
+<script>
+  requireAuth();
+  renderSidebar('doctors');
+
+  function doctorItemHTML(doc) {
+    return `
+    <div class="doc-list-item" data-id="${doc.id}">
+      <img class="thumb" src="${doc.photo}" alt="${doc.name}"/>
+      <form class="updForm">
+        <fieldset>
+          <legend>${doc.name}</legend>
+          <div class="grid2">
+            <div>
+              <label>पूरा नाम</label>
+              <input type="text" name="name" value="${doc.name.replace(/"/g,'&quot;')}"/>
+              <label>विशेषज्ञता</label>
+              <input type="text" name="specialization" value="${doc.specialization.replace(/"/g,'&quot;')}"/>
+              <label>योग्यता</label>
+              <input type="text" name="qualification" value="${doc.qualification.replace(/"/g,'&quot;')}"/>
+              <label>उपलब्धता</label>
+              <input type="text" name="availability" value="${doc.availability.replace(/"/g,'&quot;')}"/>
+            </div>
+            <div>
+              <label>विस्तृत जानकारी</label>
+              <textarea name="details">${doc.details}</textarea>
+              <label>क्रम संख्या</label>
+              <input type="text" name="order" value="${doc.order}" style="max-width:100px;"/>
+              <label>नई फोटो (वैकल्पिक)</label>
+              <input type="file" name="photo" accept="image/*"/>
+            </div>
+          </div>
+          <div style="margin-top:12px;">
+            <button type="submit" class="btn gold">सेव करें</button>
+          </div>
+        </fieldset>
+      </form>
+      <button type="button" class="btn danger delBtn" style="margin-top:4px;">हटाएं</button>
+    </div>`;
+  }
+
+  let DOCTORS = [];
+
+  async function loadDoctors() {
+    const res = await fetch('/api/data');
+    const data = await res.json();
+    DOCTORS = data.doctors.slice().sort((a,b)=>(a.order||0)-(b.order||0));
+    const listEl = document.getElementById('doctorList');
+    listEl.innerHTML = DOCTORS.map(doctorItemHTML).join('') || '<p class="muted">कोई डॉक्टर नहीं है।</p>';
+
+    listEl.querySelectorAll('.doc-list-item').forEach((item) => {
+      const id = item.getAttribute('data-id');
+      item.querySelector('.updForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const fd = new FormData(e.target);
+        const photoInput = e.target.querySelector('input[type=file]');
+        const payload = { id, name: fd.get('name'), specialization: fd.get('specialization'), qualification: fd.get('qualification'), availability: fd.get('availability'), details: fd.get('details'), order: fd.get('order') };
+        if (photoInput.files.length) {
+          const { base64, type } = await prepareCompressedInput(photoInput);
+          payload.photoBase64 = base64; payload.photoType = type;
+        }
+        try {
+          await apiFetch('/admin-doctors', { method: 'PUT', body: payload });
+          showFlash('डॉक्टर की जानकारी अपडेट हो गई।');
+          loadDoctors();
+        } catch (err) { showFlash(err.message, 'error'); }
+      });
+      item.querySelector('.delBtn').addEventListener('click', async () => {
+        if (!confirm('क्या आप वाकई इस डॉक्टर को हटाना चाहते हैं?')) return;
+        try {
+          await apiFetch('/admin-doctors', { method: 'DELETE', body: { id } });
+          showFlash('डॉक्टर हटा दिया गया।');
+          loadDoctors();
+        } catch (err) { showFlash(err.message, 'error'); }
+      });
+    });
+  }
+  loadDoctors();
+
+  document.getElementById('addForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    const photoInput = e.target.querySelector('input[type=file]');
+    const payload = { name: fd.get('name'), specialization: fd.get('specialization'), qualification: fd.get('qualification'), availability: fd.get('availability'), details: fd.get('details') };
+    if (photoInput.files.length) {
+      const { base64, type } = await prepareCompressedInput(photoInput);
+      payload.photoBase64 = base64; payload.photoType = type;
+    }
+    try {
+      await apiFetch('/admin-doctors', { method: 'POST', body: payload });
+      showFlash('नया डॉक्टर जोड़ा गया।');
+      e.target.reset();
+      loadDoctors();
+    } catch (err) { showFlash(err.message, 'error'); }
+  });
+</script>
+</body>
+</html>

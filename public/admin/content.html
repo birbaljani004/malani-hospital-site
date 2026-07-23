@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>कंटेंट एडिटर — मालाणी हॉस्पिटल एडमिन</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="admin.css"/>
+</head>
+<body>
+<div class="admin-shell">
+  <div class="admin-sidebar" id="sidebar"></div>
+  <div class="admin-main">
+    <div class="admin-topline"><h2>📝 कंटेंट एडिटर</h2></div>
+    <div id="flash" class="flash"></div>
+    <p class="muted">यहां से वेबसाइट का हर टेक्स्ट बदला जा सकता है। HTML फील्ड में &lt;b&gt;, &lt;br/&gt; जैसे टैग भी इस्तेमाल कर सकते हैं।</p>
+
+    <div class="card">
+      <h3 style="margin-top:0;">सामान्य जानकारी (हर पेज पर लागू — टॉपबार, फुटर)</h3>
+      <form id="globalForm"><div class="grid2" id="globalFields"></div>
+        <button type="submit" class="btn gold" style="margin-top:14px;">सेव करें</button>
+      </form>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0;">होम पेज — मुख्य टेक्स्ट</h3>
+      <form id="indexForm"><div id="indexFields"></div>
+        <button type="submit" class="btn gold" style="margin-top:14px;">सेव करें</button>
+      </form>
+    </div>
+
+    <div id="pageBlocks"></div>
+  </div>
+</div>
+<script src="admin.js"></script>
+<script>
+  requireAuth();
+  renderSidebar('content');
+
+  const GLOBAL_LABELS = {
+    brand_name: 'हॉस्पिटल का नाम', brand_tagline: 'टैगलाइन', address_line: 'पता लाइन',
+    open_hours: 'खुलने का समय', emergency_phone: 'आपातकालीन फ़ोन (tel: लिंक हेतु, बिना स्पेस)',
+    emergency_phone_display: 'आपातकालीन फ़ोन (टॉपबार में, इमोजी सहित)',
+    emergency_phone_plain: 'आपातकालीन फ़ोन (फुटर में, सिर्फ नंबर)',
+    footer_about: 'फुटर — हॉस्पिटल विवरण', footer_bottom: 'फुटर — कॉपीराइट लाइन', footer_rating: 'फुटर — रेटिंग बैज'
+  };
+  const INDEX_LABELS = {
+    hero_badge: 'हीरो बैज लाइन', hero_title: 'हीरो शीर्षक (HTML: &lt;br/&gt; चल सकता है)',
+    hero_loc: 'हीरो लोकेशन लाइन', hero_desc: 'हीरो विवरण', building_title: 'भवन बैनर शीर्षक',
+    building_desc: 'भवन बैनर विवरण', cta_title: 'CTA शीर्षक', cta_desc: 'CTA विवरण'
+  };
+  const PAGE_LABELS = { about:'हमारे बारे में', services:'सेवाएं', facilities:'सुविधाएं', gallery:'गैलरी', reviews:'समीक्षाएं', contact:'संपर्क करें', appointment:'अपॉइंटमेंट' };
+
+  function fieldHTML(key, label, val, big) {
+    const isTextarea = big || val.length > 70;
+    return `<div><label>${label}</label>${isTextarea ? `<textarea name="${key}" style="min-height:70px;font-family:inherit;">${val}</textarea>` : `<input type="text" name="${key}" value="${(val||'').replace(/"/g,'&quot;')}"/>`}</div>`;
+  }
+
+  let CONTENT = null;
+
+  async function load() {
+    const res = await fetch('/api/data');
+    const data = await res.json();
+    CONTENT = data.content;
+
+    document.getElementById('globalFields').innerHTML = Object.keys(GLOBAL_LABELS)
+      .map(k => fieldHTML(k, GLOBAL_LABELS[k], CONTENT.global[k] || '')).join('');
+
+    document.getElementById('indexFields').innerHTML = Object.keys(INDEX_LABELS)
+      .map(k => fieldHTML(k, INDEX_LABELS[k], CONTENT.pages.index[k] || '', true)).join('');
+
+    document.getElementById('pageBlocks').innerHTML = Object.keys(PAGE_LABELS).map(key => `
+      <div class="card">
+        <h3 style="margin-top:0;">${PAGE_LABELS[key]} पेज — पूरा कंटेंट (HTML)</h3>
+        <form class="pageForm" data-page="${key}">
+          <textarea name="main" class="tall">${CONTENT.pages[key].main}</textarea>
+          <button type="submit" class="btn gold" style="margin-top:10px;">सेव करें</button>
+        </form>
+      </div>`).join('');
+
+    document.querySelectorAll('.pageForm').forEach(form => {
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const page = form.getAttribute('data-page');
+        const main = new FormData(form).get('main');
+        try {
+          await apiFetch('/admin-content', { method: 'PUT', body: { scope: 'page', page, fields: { main } } });
+          showFlash(`${PAGE_LABELS[page]} पेज कंटेंट अपडेट हो गया।`);
+        } catch (err) { showFlash(err.message, 'error'); }
+      });
+    });
+  }
+  load();
+
+  document.getElementById('globalForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    const fields = {};
+    Object.keys(GLOBAL_LABELS).forEach(k => { fields[k] = fd.get(k); });
+    try {
+      await apiFetch('/admin-content', { method: 'PUT', body: { scope: 'global', fields } });
+      showFlash('सामान्य जानकारी अपडेट हो गई।');
+    } catch (err) { showFlash(err.message, 'error'); }
+  });
+
+  document.getElementById('indexForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    const fields = {};
+    Object.keys(INDEX_LABELS).forEach(k => { fields[k] = fd.get(k); });
+    try {
+      await apiFetch('/admin-content', { method: 'PUT', body: { scope: 'index', fields } });
+      showFlash('होम पेज कंटेंट अपडेट हो गया।');
+    } catch (err) { showFlash(err.message, 'error'); }
+  });
+</script>
+</body>
+</html>

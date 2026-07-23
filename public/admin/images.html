@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>साइट फोटो — मालाणी हॉस्पिटल एडमिन</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="admin.css"/>
+</head>
+<body>
+<div class="admin-shell">
+  <div class="admin-sidebar" id="sidebar"></div>
+  <div class="admin-main">
+    <div class="admin-topline"><h2>🖼️ साइट की फोटो बदलें</h2></div>
+    <div id="flash" class="flash"></div>
+    <p class="muted">यह फोटो वेबसाइट के विभिन्न पेजों पर उपयोग होती हैं। नई फोटो अपलोड करते ही पूरी वेबसाइट पर तुरंत अपडेट हो जाएगी। किसी भी साइज़ की फोटो अपलोड कर सकते हैं।</p>
+    <div class="grid2" id="imagesGrid"><p class="muted">लोड हो रहा है...</p></div>
+  </div>
+</div>
+<script src="admin.js"></script>
+<script>
+  requireAuth();
+  renderSidebar('images');
+
+  function cardHTML(img) {
+    return `
+    <div class="card" data-key="${img.key}">
+      <h3 style="margin-top:0;font-size:1rem;">${img.label}</h3>
+      <img class="thumb-lg" src="${img.file}" alt="${img.label}"/>
+      <form class="updForm">
+        <input type="file" name="image" accept="image/*" required/>
+        <button type="submit" class="btn gold" style="margin-top:10px;">फोटो बदलें</button>
+      </form>
+    </div>`;
+  }
+
+  async function loadImages() {
+    const res = await fetch('/api/data');
+    const data = await res.json();
+    const grid = document.getElementById('imagesGrid');
+    grid.innerHTML = data.siteImages.map(cardHTML).join('');
+    grid.querySelectorAll('.card').forEach((card) => {
+      const key = card.getAttribute('data-key');
+      card.querySelector('.updForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const imgInput = e.target.querySelector('input[type=file]');
+        if (!imgInput.files.length) return;
+        const { base64, type } = await prepareCompressedInput(imgInput);
+        try {
+          await apiFetch('/admin-images', { method: 'PUT', body: { key, imageBase64: base64, imageType: type } });
+          showFlash('फोटो अपडेट हो गई।');
+          loadImages();
+        } catch (err) { showFlash(err.message, 'error'); }
+      });
+    });
+  }
+  loadImages();
+</script>
+</body>
+</html>
